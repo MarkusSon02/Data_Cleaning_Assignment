@@ -141,13 +141,6 @@ There are three Section in total (A03, A04, A06), and Section A03 and A06 have 1
   presentation_marks_df = data.groupby(["Section", "Topic"])[columns_to_mean].mean().reset_index()
   ```
 
-### 10. **Adding Calculated Fields**
-
-- A `Score` column was calculated by summing the values of all `Evaluate` columns for each row:
-  ```python
-  data["Score"] = data[["Evaluate 1", "Evaluate 2", "Evaluate 3", "Evaluate 4", "Evaluate 5"]].sum(axis=1)
-  ```
-
 ---
 
 ## Outputs
