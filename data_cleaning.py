@@ -8,6 +8,9 @@ data = pd.read_excel(file_path)
 data.columns = ["Timestamp", "Email Address", "Section", "Door Entry Number", "Topic", "Evaluate 1", "Evaluate 2", "Evaluate 3", "Evaluate 4", "Evaluate 5", "Comments", "Score"]
 data = data.drop("Comments", axis=1)
 
+# Ensure Timestamp column is in datetime format
+data["Timestamp"] = pd.to_datetime(data["Timestamp"])
+
 # Drop exact duplicates
 data = data.drop_duplicates()
 
@@ -39,9 +42,12 @@ data.loc[(data["Email Address"] == "1056@ualberta.ca") & (data["Door Entry Numbe
 
 # Drop rows where the door entry number is not between 1 and 60
 data["Door Entry Number"] = pd.to_numeric(data["Door Entry Number"], errors="coerce")
-data = data.drop_duplicates(subset=["Email Address", "Topic"], keep="first") # Drop duplicates based on Email Address and Topic columns (each student should only evaluate a group once)
+data = data.sort_values(by="Timestamp") # Sort by Timestamp in ascending order to drop the rows with the same Door Entry Number as another student but at a later date
+lied_about_participation_df_1 = data[data.duplicated(subset=["Section", "Door Entry Number", "Topic"], keep="first")] # Save those students to add to the students who lied list
+data = data.drop_duplicates(subset=["Section", "Door Entry Number", "Topic"], keep="first")
 invalid_mask = (data["Door Entry Number"].isna()) | (data["Door Entry Number"] < 1) | (data["Door Entry Number"] > 60)
-lied_about_participation_df = data[invalid_mask] # Apply the mask to retrieve a table of students who lied about door number entry
+lied_about_participation_df_2 = data[invalid_mask] # Apply the mask to retrieve a table of students who lied about door number entry
+lied_about_participation_df = pd.concat([lied_about_participation_df_1, lied_about_participation_df_2], ignore_index=True) # Combine for full list
 data = data[~invalid_mask] # Filter the data
 
 
@@ -72,7 +78,7 @@ for col in evaluate_columns:
     data[col] = pd.to_numeric(data[col], errors="coerce")
     data.dropna(subset=[col]) # Remove invalid rows (string or empty)
 
-# Calculate the total presentation score each evaluation gave for each group
+# Calculate the total presentation score each evaluation gave for each group, and the average score of each group
 data["Score"] = data[evaluate_columns].sum(axis=1)
 columns_to_mean = evaluate_columns + ["Score"]
 presentation_marks_df = data.groupby(["Section", "Topic"])[columns_to_mean].mean().reset_index()
