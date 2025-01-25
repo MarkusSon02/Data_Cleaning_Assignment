@@ -148,15 +148,6 @@ There are three Section in total (A03, A04, A06), and Section A03 and A06 have 1
   data["Score"] = data[["Evaluate 1", "Evaluate 2", "Evaluate 3", "Evaluate 4", "Evaluate 5"]].sum(axis=1)
   ```
 
-### 11. **Grouping and Aggregation**
-
-- The answer to the three questions specified at the start are saved into three Excel files in the folder `results`:
-  ```python
-  lied_about_participation_df.to_excel("results/Students_Who_Lied_About_Participation.xlsx")
-  participation_marks_df.to_excel("results/Participation_Marks.xlsx")
-  presentation_marks_df.to_excel("results/Presentation_Marks.xlsx")
-  ```
-
 ---
 
 ## Outputs
